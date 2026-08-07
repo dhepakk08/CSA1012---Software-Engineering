@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STCAP — Smart Traffic Analytics Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--blue:#1d6ef5;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--g50:#f8f9fb;--g100:#f0f2f6;--g200:#e2e6ee;--g400:#9aa3b5;--g600:#5a6272;--g800:#1e2535;--g900:#111827;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--g800);background:#fff;}
+a{text-decoration:none;color:inherit;}
+html{scroll-behavior:smooth;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;height:62px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:0 5%;}
+.nav-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;color:var(--g900);}
+.nav-logo-ic{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.nav-links{display:flex;gap:2px;list-style:none;}
+.nav-links a{padding:6px 11px;border-radius:7px;font-size:13px;font-weight:600;color:var(--g600);}
+.nav-links a:hover{background:var(--g100);color:var(--g900);}
+.nav-links a.trip{background:#eff4ff;color:var(--blue);}
+.nav-cta{padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* HERO */
+#home{min-height:100vh;display:flex;align-items:center;padding:110px 5% 70px;background:linear-gradient(150deg,#eef4ff,#f8fbff 50%,#fff);}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1200px;margin:0 auto;width:100%;}
+.hero-title{font-size:clamp(34px,5vw,60px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px;}
+.hero-title span.blue{color:var(--blue);}
+.hero-title span.green{color:var(--green);}
+.hero-desc{font-size:16px;color:var(--g600);line-height:1.8;max-width:440px;margin-bottom:32px;}
+.hero-btns{display:flex;gap:12px;}
+.btn-primary{padding:12px 26px;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-outline{padding:12px 26px;background:transparent;color:var(--g800);border:1.5px solid var(--g200);border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.hero-stats{display:flex;margin-top:40px;border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:#fff;}
+.hs{flex:1;padding:14px 18px;text-align:center;border-right:1px solid var(--g200);}
+.hs:last-child{border-right:none;}
+.hs-num{font-size:20px;font-weight:800;line-height:1;margin-bottom:2px;}
+.hs-lbl{font-size:10px;font-weight:600;color:var(--g400);letter-spacing:.05em;text-transform:uppercase;}
+.hero-card{background:#fff;border-radius:18px;border:1px solid var(--g200);box-shadow:0 16px 48px rgba(0,0,0,.09);padding:20px;}
+.hero-chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.hero-chart-title{font-size:13px;font-weight:700;}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--green);background:#ecfdf5;padding:4px 10px;border-radius:100px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hchart{height:150px;position:relative;}
+
+/* SECTIONS */
+.section{padding:88px 5%;}
+.bg-gray{background:var(--g50);}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
+.eyebrow::before{content:'';width:18px;height:2px;background:var(--blue);border-radius:1px;}
+.section-title{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--g900);margin-bottom:12px;line-height:1.15;}
+.section-sub{font-size:15px;color:var(--g600);max-width:520px;line-height:1.75;margin-bottom:48px;}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;}
+.about-img{border-radius:16px;overflow:hidden;border:1px solid var(--g200);box-shadow:0 16px 48px rgba(0,0,0,.09);position:relative;}
+.city-svg-wrap{width:100%;aspect-ratio:4/3;background:linear-gradient(145deg,#0f1e3d,#0a2754);}
+.city-live-badge{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:8px 13px;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;}
+.about-points{display:flex;flex-direction:column;gap:14px;}
+.apoint{display:flex;gap:12px;padding:15px;background:#fff;border:1px solid var(--g200);border-radius:11px;}
+.apoint:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);transform:translateX(3px);}
+.apoint{transition:.2s;}
+.ap-icon{width:38px;height:38px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ap-title{font-weight:700;font-size:14px;margin-bottom:3px;}
+.ap-text{font-size:12px;color:var(--g600);line-height:1.6;}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.feat-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:24px;transition:.2s;}
+.feat-card:hover{box-shadow:0 12px 40px rgba(0,0,0,.09);transform:translateY(-4px);}
+.feat-icon{width:48px;height:48px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:7px;}
+.feat-desc{font-size:13px;color:var(--g600);line-height:1.65;}
+.feat-tag{display:inline-block;margin-top:11px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px;}
+
+/* WORKFLOW */
+.wf-wrap{display:grid;grid-template-columns:repeat(5,1fr);position:relative;}
+.wf-wrap::before{content:'';position:absolute;top:37px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--blue),var(--green));}
+.wf-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px;position:relative;z-index:1;}
+.wf-bubble{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.08);position:relative;}
+.wf-num{position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+.wf-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.wf-text{font-size:11px;color:var(--g600);line-height:1.5;}
+
+/* ============================================
+   TRIP PLANNER — FIXED, FULLY VISIBLE
+   ============================================ */
+#trip-planner{
+  padding:80px 5% 90px;
+  background:linear-gradient(160deg,#0f1e3d,#0a2754 55%,#061540);
+}
+.tp-header{text-align:center;margin-bottom:36px;}
+.tp-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd;background:rgba(29,110,245,.18);border:1px solid rgba(29,110,245,.3);padding:5px 14px;border-radius:100px;margin-bottom:14px;}
+.tp-title{font-size:clamp(24px,3.5vw,38px);font-weight:800;color:#fff;margin-bottom:10px;}
+.tp-sub{font-size:14px;color:rgba(255,255,255,.5);max-width:460px;margin:0 auto;line-height:1.7;}
+
+/* The app container — key fix: NO overflow:hidden, NO fixed height */
+.planner-app{
+  display:grid;
+  grid-template-columns:390px 1fr;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.25);
+  overflow:visible;  /* NOT hidden */
+  position:relative;
+  z-index:2;
+}
+
+/* Sidebar */
+.pl-sidebar{
+  background:#fff;
+  border-right:1px solid var(--g200);
+  border-radius:18px 0 0 18px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.pl-topbar{
+  background:#111827;
+  padding:11px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+.pl-logo{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#fff;}
+.pl-logo-ic{width:22px;height:22px;background:var(--blue);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pl-live-ind{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#34d399;}
+.pl-live-dot{width:5px;height:5px;border-radius:50%;background:#34d399;animation:blink 1.5s infinite;}
+.pl-clock{font-family:monospace;font-size:11px;color:rgba(255,255,255,.4);}
+
+/* Scrollable content area */
+.pl-scroll{
+  overflow-y:auto;
+  overflow-x:hidden;
+  flex:1;
+}
+.pl-scroll::-webkit-scrollbar{width:4px;}
+.pl-scroll::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px;}
+
+.pl-form-area{padding:14px 15px;border-bottom:1px solid var(--g100);}
+.pl-form-title{font-size:14px;font-weight:800;color:var(--g900);margin-bottom:2px;}
+.pl-form-sub{font-size:11px;color:var(--g400);margin-bottom:11px;}
+
+/* Input fields */
+.input-stack{position:relative;display:flex;flex-direction:column;gap:7px;}
+.input-line{position:absolute;left:15px;top:43px;bottom:43px;width:2px;background:linear-gradient(180deg,var(--blue),var(--green));border-radius:2px;}
+.input-wrap{position:relative;}
+.input-label{position:absolute;left:31px;top:6px;font-size:9px;font-weight:700;color:var(--g400);letter-spacing:.08em;text-transform:uppercase;pointer-events:none;}
+.input-dot{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none;}
+.route-input{width:100%;padding:19px 10px 7px 30px;border:1.5px solid var(--g200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--g800);outline:none;background:#fff;transition:.2s;position:relative;z-index:1;}
+.route-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,110,245,.1);}
+.route-input::placeholder{color:var(--g400);}
+.swap-row{display:flex;justify-content:flex-end;}
+.swap-btn{width:25px;height:25px;border:1.5px solid var(--g200);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.swap-btn:hover{border-color:var(--blue);color:var(--blue);}
+
+/* Autocomplete */
+.autocomplete{position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:600;background:#fff;border:1.5px solid var(--g200);border-radius:9px;box-shadow:0 16px 48px rgba(0,0,0,.14);display:none;overflow:hidden;}
+.autocomplete.show{display:block;}
+.ac-item{padding:9px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--g100);transition:.12s;}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--g50);}
+.ac-name{font-weight:600;}
+.ac-sub{font-size:10px;color:var(--g400);}
+
+/* Mode buttons */
+.mode-row{display:flex;gap:5px;margin-top:8px;}
+.mode-btn{flex:1;padding:6px 3px;border:1.5px solid var(--g200);border-radius:7px;background:#fff;cursor:pointer;font-family:inherit;font-size:10px;font-weight:700;color:var(--g600);display:flex;flex-direction:column;align-items:center;gap:2px;transition:.2s;}
+.mode-btn.active{border-color:var(--blue);background:#eff4ff;color:var(--blue);}
+.mode-btn:hover{border-color:var(--blue);}
+.mode-ic{font-size:15px;}
+
+/* Search button */
+.search-btn{width:100%;margin-top:8px;padding:10px;background:linear-gradient(135deg,#1250c4,var(--blue));border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s;}
+.search-btn:hover{opacity:.9;transform:translateY(-1px);}
+.search-btn .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.search-btn.loading .spin{display:block;}
+.search-btn.loading .btn-label{display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Banner */
+.traffic-banner{margin:9px 15px 0;padding:8px 10px;border-radius:7px;font-size:11px;font-weight:700;display:none;align-items:center;gap:7px;}
+.traffic-banner.visible{display:flex;}
+.traffic-banner.free{background:#ecfdf5;color:#059669;}
+.traffic-banner.moderate{background:#fffbeb;color:#92400e;}
+.traffic-banner.heavy{background:#fef2f2;color:#b91c1c;}
+
+/* Route cards */
+.routes-area{padding:10px 15px;display:none;flex-direction:column;gap:7px;}
+.routes-area.visible{display:flex;}
+.routes-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:2px;}
+
+.route-card{border:2px solid var(--g200);border-radius:10px;padding:11px;cursor:pointer;background:#fff;position:relative;overflow:hidden;transition:.2s;}
+.route-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.route-card.color-green::before{background:var(--green);}
+.route-card.color-amber::before{background:var(--amber);}
+.route-card.color-blue::before{background:var(--blue);}
+.route-card.color-red::before{background:var(--red);}
+.route-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,110,245,.1);}
+.route-card:hover:not(.selected){border-color:var(--g300);}
+.rc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.rc-name{font-size:13px;font-weight:800;}
+.rc-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.badge-best{background:#dcfce7;color:#166534;}
+.badge-fast{background:#eff4ff;color:#1250c4;}
+.badge-alt{background:var(--g100);color:var(--g600);}
+.rc-meta{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.rc-eta{font-size:20px;font-weight:800;line-height:1;}
+.rc-delay{font-size:10px;margin-top:1px;}
+.rc-sep{width:1px;height:20px;background:var(--g200);}
+.rc-dist{font-size:11px;font-weight:600;color:var(--g600);}
+.rc-traffic{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.traffic-free{background:#ecfdf5;color:#059669;}
+.traffic-mod{background:#fffbeb;color:#92400e;}
+.traffic-heavy{background:#fef2f2;color:#b91c1c;}
+.rc-arrive{font-size:10px;color:var(--g600);margin-bottom:5px;}
+.rc-arrive strong{color:var(--g800);}
+.cong-bar{margin-top:2px;}
+.cong-bar-label{font-size:9px;color:var(--g400);font-weight:600;margin-bottom:2px;}
+.cong-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#10b981 0 28%,#f59e0b 28% 55%,#ef4444 55% 78%,#f59e0b 78% 90%,#10b981 90%);position:relative;}
+.cong-pointer{position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:#fff;border:2.5px solid var(--blue);transform:translateX(-50%);transition:left .8s;}
+.steps-toggle{font-size:10px;color:var(--blue);font-weight:700;cursor:pointer;margin-top:5px;display:inline-block;}
+.steps-body{display:none;margin-top:6px;border-top:1px solid var(--g100);padding-top:6px;}
+.steps-body.open{display:block;}
+.step-item{display:flex;gap:7px;font-size:10px;color:var(--g600);line-height:1.5;margin-bottom:3px;}
+.step-dot{width:15px;height:15px;border-radius:50%;background:var(--g100);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;}
+
+/* Comparison table */
+.comp-area{padding:0 15px 12px;display:none;}
+.comp-area.visible{display:block;}
+.comp-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:6px;}
+table.comp-tbl{width:100%;border-collapse:collapse;font-size:10px;}
+.comp-tbl th{padding:5px 6px;background:var(--g100);color:var(--g400);font-weight:700;font-size:9px;text-transform:uppercase;text-align:left;}
+.comp-tbl td{padding:6px 6px;border-bottom:1px solid var(--g100);color:var(--g700);font-weight:500;}
+.comp-tbl tr.winner td{background:#f0fdf4;}
+.comp-tbl tr:last-child td{border-bottom:none;}
+
+/* Empty state */
+.empty-state{padding:30px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.empty-icon{font-size:42px;opacity:.3;}
+.empty-title{font-size:13px;font-weight:700;color:var(--g600);}
+.empty-sub{font-size:11px;color:var(--g400);line-height:1.6;}
+
+/* Map panel */
+.pl-map-panel{
+  border-radius:0 18px 18px 0;
+  overflow:hidden;
+  position:relative;
+  background:#e4ecf6;
+  min-height:640px;
+}
+#map-svg{width:100%;height:100%;display:block;min-height:640px;}
+.map-overlay{position:absolute;z-index:10;}
+.map-overlay.top-left{top:12px;left:12px;}
+.map-overlay.top-right{top:12px;right:12px;display:flex;flex-direction:column;gap:7px;}
+.map-overlay.bottom-left{bottom:16px;left:12px;}
+
+/* ETA card */
+.eta-box{background:#111827;color:#fff;border-radius:12px;padding:12px 15px;display:none;min-width:160px;box-shadow:0 16px 48px rgba(0,0,0,.25);}
+.eta-box.show{display:block;}
+.eta-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:4px;}
+.eta-time{font-size:26px;font-weight:800;}
+.eta-dist{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
+.eta-arrive{font-size:12px;font-weight:700;color:#34d399;margin-top:6px;}
+
+/* Map controls */
+.map-ctrl-btn{width:34px;height:34px;background:#fff;border:none;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.map-ctrl-btn:hover{box-shadow:0 4px 12px rgba(0,0,0,.15);}
+
+/* Legend */
+.map-legend{background:#fff;border-radius:10px;border:1px solid var(--g200);padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.legend-title{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g600);margin-bottom:6px;}
+.legend-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--g600);margin-bottom:3px;}
+.legend-swatch{width:20px;height:6px;border-radius:3px;}
+
+/* DASHBOARD */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:17px 19px;}
+.kpi-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.kpi-emoji{font-size:20px;margin-bottom:5px;}
+.kpi-label{font-size:11px;font-weight:600;color:var(--g400);letter-spacing:.05em;text-transform:uppercase;}
+.kpi-value{font-size:23px;font-weight:800;line-height:1.1;}
+.kpi-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:100px;margin-top:3px;}
+.kpi-badge.up{background:#ecfdf5;color:#059669;}
+.kpi-badge.down{background:#fef2f2;color:#b91c1c;}
+.dash-main{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+.dash-secondary{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+.dash-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:18px;}
+.dash-card-title{font-size:14px;font-weight:700;margin-bottom:14px;}
+.chart-container{height:188px;position:relative;}
+.road-bars{display:flex;flex-direction:column;gap:10px;}
+.road-bar-item{display:flex;flex-direction:column;gap:3px;}
+.road-bar-header{display:flex;justify-content:space-between;font-size:12px;}
+.road-bar-name{font-weight:600;color:var(--g700);}
+.road-bar-pct{font-weight:700;}
+.road-bar-bg{height:5px;background:var(--g100);border-radius:3px;overflow:hidden;}
+.road-bar-fill{height:100%;border-radius:3px;transition:width 1.4s ease;}
+
+/* BENEFITS */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.benefit-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:24px;display:flex;gap:16px;transition:.2s;}
+.benefit-card:hover{box-shadow:0 12px 40px rgba(0,0,0,.08);transform:translateY(-3px);}
+.benefit-icon{width:50px;height:50px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.benefit-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.benefit-title{font-size:17px;font-weight:800;margin-bottom:7px;}
+.benefit-desc{font-size:13px;color:var(--g600);line-height:1.65;}
+.benefit-metric{font-size:19px;font-weight:800;margin-top:10px;}
+
+/* CONTACT */
+.contact-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:start;}
+.contact-info{display:flex;flex-direction:column;gap:14px;}
+.contact-item{display:flex;gap:12px;padding:13px;background:#fff;border:1px solid var(--g200);border-radius:10px;}
+.contact-icon{width:38px;height:38px;border-radius:9px;background:#eff4ff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.contact-item-title{font-weight:700;font-size:13px;margin-bottom:1px;}
+.contact-item-val{font-size:12px;color:var(--g600);}
+.contact-form-card{background:#fff;border:1px solid var(--g200);border-radius:16px;padding:30px;box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-field.full{grid-column:1/-1;}
+.form-field label{font-size:12px;font-weight:700;color:var(--g700);}
+.form-field input,.form-field textarea{padding:10px 12px;border-radius:8px;border:1.5px solid var(--g200);font-family:inherit;font-size:13px;color:var(--g800);outline:none;transition:.2s;resize:none;}
+.form-field input:focus,.form-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,110,245,.1);}
+.form-field textarea{min-height:105px;}
+.form-submit{width:100%;padding:12px;margin-top:5px;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;}
+.form-submit:hover{background:#1250c4;}
+
+/* FOOTER */
+footer{background:#111827;color:#fff;padding:42px 5% 26px;}
+.footer-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:32px;margin-bottom:32px;}
+.footer-brand{display:flex;flex-direction:column;gap:11px;}
+.footer-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;}
+.footer-logo-ic{width:30px;height:30px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.footer-tagline{font-size:13px;color:#6b7280;line-height:1.65;}
+.footer-col-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:11px;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.footer-links a{font-size:13px;color:#9ca3af;}
+.footer-links a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid #1f2937;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-copy{font-size:12px;color:#6b7280;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:#111827;color:#fff;border-radius:9px;padding:11px 17px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 16px 48px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:.3s;pointer-events:none;}
+.toast.show{transform:none;opacity:1;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .planner-app{grid-template-columns:1fr;}
+  .pl-sidebar{border-radius:18px 18px 0 0;}
+  .pl-map-panel{border-radius:0 0 18px 18px;min-height:420px;}
+  #map-svg{min-height:420px;}
+}
+@media(max-width:900px){
+  .hero-inner,.about-grid,.contact-layout{grid-template-columns:1fr;}
+  .feat-grid{grid-template-columns:1fr 1fr;}
+  .wf-wrap{grid-template-columns:1fr 1fr;gap:24px;}
+  .wf-wrap::before{display:none;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .dash-main,.dash-secondary{grid-template-columns:1fr;}
+  .benefit-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .nav-links,.nav-cta{display:none;}
+  .feat-grid{grid-template-columns:1fr;}
+  .wf-wrap{grid-template-columns:1fr;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .benefit-card{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><div class="nav-logo-ic">🚦</div>STCAP</div>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#trip-planner" class="trip">🗺️ Trip Planner</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#benefits">Benefits</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Contact Us</button>
+</nav>
+
+<!-- HOME -->
+<section id="home">
+  <div class="hero-inner">
+    <div>
+      <h1 class="hero-title">Smart Traffic<br><span class="blue">Congestion</span><br><span class="green">Analytics</span> Platform</h1>
+      <p class="hero-desc">Real-time traffic intelligence for modern cities — monitor congestion, analyze patterns, and plan the fastest route to your destination.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.querySelector('#trip-planner').scrollIntoView({behavior:'smooth'})">🗺️ Plan a Trip</button>
+        <button class="btn-outline" onclick="document.querySelector('#dashboard').scrollIntoView({behavior:'smooth'})">📊 Dashboard</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-num" style="color:var(--blue)">40%</div><div class="hs-lbl">Less Congestion</div></div>
+        <div class="hs"><div class="hs-num" style="color:var(--green)">98.5%</div><div class="hs-lbl">Uptime</div></div>
+        <div class="hs"><div class="hs-num" style="color:var(--amber)">2.4M</div><div class="hs-lbl">Vehicles/Day</div></div>
+        <div class="hs"><div class="hs-num" style="color:var(--red)">32</div><div class="hs-lbl">Cities</div></div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-chart-head">
+        <span class="hero-chart-title">Traffic Flow — Today</span>
+        <span class="live-pill"><span class="live-dot"></span>Live</span>
+      </div>
+      <div class="hchart"><canvas id="heroChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section bg-gray">
+  <div class="eyebrow">About the Platform</div>
+  <h2 class="section-title">Understanding Urban Traffic</h2>
+  <p class="section-sub">Traffic congestion wastes billions of hours every year. STCAP uses real-time data and AI to help cities move smarter.</p>
+  <div class="about-grid">
+    <div class="about-img">
+      <div class="city-svg-wrap">
+        <svg width="100%" height="100%" viewBox="0 0 520 390" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0b1a40"/><stop offset="100%" stop-color="#112255"/></linearGradient></defs>
+          <rect width="520" height="390" fill="url(#skyG)"/>
+          <rect x="72" y="90" width="68" height="280" fill="#0c1e3a" rx="2"/>
+          <rect x="80" y="104" width="10" height="10" fill="#60a5fa" opacity=".9" rx="1"/>
+          <rect x="96" y="104" width="10" height="10" fill="#fbbf24" opacity=".6" rx="1"/>
+          <line x1="106" y1="90" x2="106" y2="60" stroke="#60a5fa" stroke-width="1.5"/>
+          <circle cx="106" cy="57" r="4" fill="#60a5fa" opacity=".7"/>
+          <rect x="228" y="100" width="76" height="270" fill="#0d2145" rx="2"/>
+          <rect x="236" y="114" width="12" height="12" fill="#60a5fa" opacity=".9" rx="2"/>
+          <rect x="254" y="114" width="12" height="12" fill="#fbbf24" opacity=".7" rx="2"/>
+          <rect x="386" y="120" width="62" height="250" fill="#0a1b36" rx="2"/>
+          <rect x="394" y="134" width="9" height="9" fill="#fbbf24" opacity=".8" rx="1"/>
+          <rect x="0" y="310" width="520" height="80" fill="#111827"/>
+          <rect x="30" y="318" width="36" height="18" fill="#ef4444" rx="5"/>
+          <rect x="210" y="317" width="38" height="18" fill="#10b981" rx="5"/>
+          <rect x="380" y="145" x2="380" y2="310" stroke="#1f2937" stroke-width="3"/>
+          <line x1="380" y1="145" x2="380" y2="310" stroke="#1f2937" stroke-width="3"/>
+          <rect x="368" y="134" width="24" height="64" fill="#1f2937" rx="6"/>
+          <circle cx="380" cy="148" r="6" fill="#ef4444"/>
+          <circle cx="380" cy="166" r="6" fill="#f59e0b" opacity=".4"/>
+          <circle cx="380" cy="184" r="6" fill="#10b981" opacity=".3"/>
+        </svg>
+      </div>
+      <div class="city-live-badge"><span class="live-dot"></span>Live City Monitoring</div>
+    </div>
+    <div class="about-points">
+      <div class="apoint"><div class="ap-icon" style="background:#fef2f2">🚗</div><div><div class="ap-title">The Congestion Problem</div><div class="ap-text">Drivers waste 100+ hours per year in traffic — costing economies over $1 trillion annually in lost time, fuel, and emissions.</div></div></div>
+      <div class="apoint"><div class="ap-icon" style="background:#eff4ff">📡</div><div><div class="ap-title">Real-Time Monitoring</div><div class="ap-text">STCAP connects to thousands of sensors, cameras, and GPS signals — watching every road 24 hours a day, 7 days a week.</div></div></div>
+      <div class="apoint"><div class="ap-icon" style="background:#ecfdf5">🧠</div><div><div class="ap-title">AI-Powered Predictions</div><div class="ap-text">ML models detect congestion before it forms, automatically adjusting signals and sending route tips to drivers.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+  <div class="eyebrow">What We Do</div>
+  <h2 class="section-title">Platform Features</h2>
+  <p class="section-sub">Everything you need to monitor, analyze, and manage city traffic in one unified platform.</p>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon" style="background:#eff4ff">📡</div><div class="feat-title">Real-Time Data Collection</div><div class="feat-desc">Ingests live data from IoT sensors, CCTV cameras, GPS trackers, and traffic APIs simultaneously.</div><span class="feat-tag" style="background:#eff4ff;color:var(--blue)">Data Ingestion</span></div>
+    <div class="feat-card"><div class="feat-icon" style="background:#fef2f2">🚦</div><div class="feat-title">Congestion Detection</div><div class="feat-desc">AI algorithms instantly classify each road — Clear, Slow, or Congested — with sub-second latency.</div><span class="feat-tag" style="background:#fef2f2;color:var(--red)">AI Detection</span></div>
+    <div class="feat-card"><div class="feat-icon" style="background:#ecfdf5">🗺️</div><div class="feat-title">Route Optimization</div><div class="feat-desc">Calculates the fastest alternate paths in real time, preventing bottlenecks before they form.</div><span class="feat-tag" style="background:#ecfdf5;color:var(--green)">Smart Routing</span></div>
+    <div class="feat-card"><div class="feat-icon" style="background:#fffbeb">🚥</div><div class="feat-title">Signal Optimization</div><div class="feat-desc">Adaptive signal control adjusts green-light durations based on live vehicle density at intersections.</div><span class="feat-tag" style="background:#fffbeb;color:var(--amber)">Adaptive Control</span></div>
+    <div class="feat-card"><div class="feat-icon" style="background:#f5f3ff">📊</div><div class="feat-title">Analytics Dashboard</div><div class="feat-desc">Live dashboard with charts, congestion heatmaps, trends, and downloadable reports for planners.</div><span class="feat-tag" style="background:#f5f3ff;color:#7c3aed">Visualization</span></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="workflow" class="section bg-gray">
+  <div class="eyebrow">How It Works</div>
+  <h2 class="section-title">5 Steps, End to End</h2>
+  <p class="section-sub">From raw sensor data to intelligent decisions — the entire pipeline runs automatically.</p>
+  <div class="wf-wrap">
+    <div class="wf-step"><div class="wf-bubble" style="background:#eff4ff">📸<span class="wf-num">1</span></div><div class="wf-title">Data Collection</div><div class="wf-text">Sensors & cameras capture vehicle counts and speeds.</div></div>
+    <div class="wf-step"><div class="wf-bubble" style="background:#ecfdf5">☁️<span class="wf-num" style="background:var(--green)">2</span></div><div class="wf-title">Data Upload</div><div class="wf-text">Securely streamed to the STCAP cloud platform.</div></div>
+    <div class="wf-step"><div class="wf-bubble" style="background:#fffbeb">🧠<span class="wf-num" style="background:var(--amber)">3</span></div><div class="wf-title">AI Analysis</div><div class="wf-text">ML models detect congestion and predict peak hours.</div></div>
+    <div class="wf-step"><div class="wf-bubble" style="background:#fef2f2">🔔<span class="wf-num" style="background:var(--red)">4</span></div><div class="wf-title">Alerts & Routing</div><div class="wf-text">Drivers get optimal routes. Signals auto-adjust.</div></div>
+    <div class="wf-step"><div class="wf-bubble" style="background:#f5f3ff">📊<span class="wf-num" style="background:#7c3aed">5</span></div><div class="wf-title">Reporting</div><div class="wf-text">Insights displayed on the live dashboard.</div></div>
+  </div>
+</section>
+
+<!-- TRIP PLANNER -->
+<section id="trip-planner">
+  <div class="tp-header">
+    <div class="tp-badge">🗺️ Interactive Feature</div>
+    <h2 class="tp-title">Plan Your Trip with Live Traffic</h2>
+    <p class="tp-sub">Type any two Chennai locations — see multiple routes, live congestion, delays, and directions instantly.</p>
+  </div>
+
+  <div class="planner-app">
+    <!-- SIDEBAR -->
+    <div class="pl-sidebar">
+      <div class="pl-topbar">
+        <div class="pl-logo"><div class="pl-logo-ic">🚦</div>Trip Planner</div>
+        <div class="pl-live-ind"><span class="pl-live-dot"></span>LIVE</div>
+        <div class="pl-clock" id="plClock"></div>
+      </div>
+
+      <div class="pl-scroll">
+        <div class="pl-form-area">
+          <div class="pl-form-title">Where are you going?</div>
+          <div class="pl-form-sub">Search Chennai locations below</div>
+          <div class="input-stack">
+            <div class="input-line"></div>
+            <div class="input-wrap" style="position:relative">
+              <span class="input-dot">🔵</span>
+              <span class="input-label">FROM</span>
+              <input id="originInput" class="route-input" placeholder="e.g. Chennai Central" autocomplete="off"
+                oninput="showAC('o',this.value)" onfocus="showAC('o',this.value)" onblur="hideAC('o')">
+              <div class="autocomplete" id="acOrigin"></div>
+            </div>
+            <div class="swap-row">
+              <button class="swap-btn" onclick="swapPlaces()">⇅</button>
+            </div>
+            <div class="input-wrap" style="position:relative">
+              <span class="input-dot">🔴</span>
+              <span class="input-label">TO</span>
+              <input id="destInput" class="route-input" placeholder="e.g. Chennai Airport" autocomplete="off"
+                oninput="showAC('d',this.value)" onfocus="showAC('d',this.value)" onblur="hideAC('d')"
+                onkeydown="if(event.key==='Enter')searchRoutes()">
+              <div class="autocomplete" id="acDest"></div>
+            </div>
+          </div>
+          <div class="mode-row">
+            <button class="mode-btn active" data-m="drive"   onclick="setMode(this)"><span class="mode-ic">🚗</span>Drive</button>
+            <button class="mode-btn"        data-m="transit" onclick="setMode(this)"><span class="mode-ic">🚌</span>Transit</button>
+            <button class="mode-btn"        data-m="bike"    onclick="setMode(this)"><span class="mode-ic">🚲</span>Cycle</button>
+            <button class="mode-btn"        data-m="walk"    onclick="setMode(this)"><span class="mode-ic">🚶</span>Walk</button>
+          </div>
+          <button class="search-btn" id="searchBtn" onclick="searchRoutes()">
+            <span class="btn-label">🔍 &nbsp;Find Routes &amp; Traffic</span>
+            <div class="spin"></div>
+          </button>
+        </div>
+
+        <div class="traffic-banner" id="trafficBanner"></div>
+        <div class="routes-area" id="routesArea"><div class="routes-label">Available Routes</div><div id="routeCards"></div></div>
+        <div class="comp-area" id="compArea"><div class="comp-label">Route Comparison</div><table class="comp-tbl" id="compTable"></table></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🗺️</div>
+          <div class="empty-title">Ready to navigate?</div>
+          <div class="empty-sub">Try: "Chennai Central" → "Airport"<br>or any two Chennai locations</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="pl-map-panel">
+      <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 640" preserveAspectRatio="xMidYMid slice"></svg>
+
+      <div class="map-overlay top-left">
+        <div class="eta-box" id="etaBox">
+          <div class="eta-label">Best Route ETA</div>
+          <div class="eta-time" id="etaTime">--</div>
+          <div class="eta-dist" id="etaDist">-- km</div>
+          <div class="eta-arrive" id="etaArrive">🕐 Arrive at --:--</div>
+        </div>
+      </div>
+
+      <div class="map-overlay top-right">
+        <button class="map-ctrl-btn" onclick="toggleTraffic()" id="trafBtn" title="Traffic">🚦</button>
+        <button class="map-ctrl-btn" onclick="resetMap()" title="Reset">⊕</button>
+        <button class="map-ctrl-btn" onclick="toggleNight()" id="nightBtn" title="Night">🌙</button>
+      </div>
+
+      <div class="map-overlay bottom-left">
+        <div class="map-legend">
+          <div class="legend-title">Traffic</div>
+          <div class="legend-row"><div class="legend-swatch" style="background:#22c55e"></div>Free</div>
+          <div class="legend-row"><div class="legend-swatch" style="background:#eab308"></div>Slow</div>
+          <div class="legend-row"><div class="legend-swatch" style="background:#ef4444"></div>Heavy</div>
+          <div class="legend-row"><div class="legend-swatch" style="background:#7f1d1d"></div>Standstill</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section bg-gray">
+  <div class="eyebrow">Live Analytics</div>
+  <h2 class="section-title">Traffic Dashboard</h2>
+  <p class="section-sub">City-wide stats updated in real time across the monitored network.</p>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-emoji">🚗</div><div class="kpi-label">Vehicles Today</div><div class="kpi-value" id="kpiV" style="color:var(--blue)">2,418,322</div><span class="kpi-badge up">↑ 3.2%</span></div>
+    <div class="kpi-card"><div class="kpi-emoji">⏱️</div><div class="kpi-label">Avg Travel Time</div><div class="kpi-value" id="kpiT" style="color:var(--amber)">18.4 min</div><span class="kpi-badge down">↓ 12%</span></div>
+    <div class="kpi-card"><div class="kpi-emoji">⚠️</div><div class="kpi-label">Active Incidents</div><div class="kpi-value" id="kpiI" style="color:var(--red)">7</div><span class="kpi-badge down">↓ 2 resolved</span></div>
+    <div class="kpi-card"><div class="kpi-emoji">✅</div><div class="kpi-label">System Uptime</div><div class="kpi-value" style="color:var(--green)">99.8%</div><span class="kpi-badge up">All sensors OK</span></div>
+  </div>
+  <div class="dash-main">
+    <div class="dash-card">
+      <div class="dash-card-title">Hourly Traffic Volume — Today <span class="live-pill" style="float:right"><span class="live-dot"></span>Live</span></div>
+      <div class="chart-container"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Road Segment Status</div>
+      <div class="road-bars" id="roadBars"></div>
+    </div>
+  </div>
+  <div class="dash-secondary">
+    <div class="dash-card">
+      <div class="dash-card-title">Weekly Congestion Index</div>
+      <div class="chart-container"><canvas id="barChart"></canvas></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">Vehicle Type Breakdown</div>
+      <div class="chart-container"><canvas id="donutChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section id="benefits" class="section">
+  <div class="eyebrow">Why It Matters</div>
+  <h2 class="section-title">Measurable Benefits</h2>
+  <p class="section-sub">Real outcomes for cities, commuters, and the environment.</p>
+  <div class="benefit-grid">
+    <div class="benefit-card"><div class="benefit-icon" style="background:#ecfdf5">⏱️</div><div><div class="benefit-label" style="color:var(--green)">Time Savings</div><div class="benefit-title">Reduced Travel Time</div><div class="benefit-desc">Dynamic routing and adaptive signals cut delays before bottlenecks form.</div><div class="benefit-metric" style="color:var(--green)">−38% avg daily delay</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon" style="background:#eff4ff">🏙️</div><div><div class="benefit-label" style="color:var(--blue)">Management</div><div class="benefit-title">Smarter City Control</div><div class="benefit-desc">Authorities get real-time visibility and AI-assisted decisions to respond faster.</div><div class="benefit-metric" style="color:var(--blue)">4× faster response</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon" style="background:#fffbeb">⛽</div><div><div class="benefit-label" style="color:var(--amber)">Efficiency</div><div class="benefit-title">Lower Fuel Consumption</div><div class="benefit-desc">Fewer stop-and-go cycles mean vehicles burn less fuel on every trip.</div><div class="benefit-metric" style="color:var(--amber)">−22% fuel waste</div></div></div>
+    <div class="benefit-card"><div class="benefit-icon" style="background:#fef2f2">🌿</div><div><div class="benefit-label" style="color:var(--red)">Environment</div><div class="benefit-title">Reduced Emissions</div><div class="benefit-desc">Smoother flow cuts CO₂ and NOₓ — measurably improving urban air quality.</div><div class="benefit-metric" style="color:var(--red)">−31% CO₂ per km</div></div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section bg-gray">
+  <div class="eyebrow">Get in Touch</div>
+  <h2 class="section-title">Contact Us</h2>
+  <p class="section-sub">Interested in deploying STCAP in your city? We'll reply within 24 hours.</p>
+  <div class="contact-layout">
+    <div class="contact-info">
+      <div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-item-title">Location</div><div class="contact-item-val">SIMATS Engineering, Chennai, Tamil Nadu</div></div></div>
+      <div class="contact-item"><div class="contact-icon">📧</div><div><div class="contact-item-title">Email</div><div class="contact-item-val">contact@stcap.smartcity.in</div></div></div>
+      <div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-item-title">Phone</div><div class="contact-item-val">+91 44 2680 0000</div></div></div>
+      <div class="contact-item"><div class="contact-icon">🕐</div><div><div class="contact-item-title">Working Hours</div><div class="contact-item-val">Mon–Fri, 9 AM – 6 PM IST</div></div></div>
+    </div>
+    <div class="contact-form-card">
+      <form onsubmit="return submitForm(event)">
+        <div class="form-row">
+          <div class="form-field"><label>First Name</label><input type="text" placeholder="Ramana" required></div>
+          <div class="form-field"><label>Last Name</label><input type="text" placeholder="Y" required></div>
+          <div class="form-field full"><label>Email</label><input type="email" placeholder="you@example.com" required></div>
+          <div class="form-field full"><label>Subject</label><input type="text" placeholder="City deployment inquiry"></div>
+          <div class="form-field full"><label>Message</label><textarea placeholder="Tell us about your city's traffic challenges..." required></textarea></div>
+        </div>
+        <button type="submit" class="form-submit">Send Message →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="footer-logo"><div class="footer-logo-ic">🚦</div>STCAP</div><div class="footer-tagline">Smart Traffic Congestion Analytics Platform — helping cities move smarter with real-time data and AI.</div></div>
+    <div><div class="footer-col-title">Platform</div><ul class="footer-links"><li><a href="#features">Features</a></li><li><a href="#trip-planner">Trip Planner</a></li><li><a href="#dashboard">Dashboard</a></li></ul></div>
+    <div><div class="footer-col-title">Company</div><ul class="footer-links"><li><a href="#about">About</a></li><li><a href="#contact">Contact</a></li><li><a href="#">Privacy</a></li></ul></div>
+    <div><div class="footer-col-title">Built With</div><ul class="footer-links"><li><a href="#">Python / Pandas</a></li><li><a href="#">Scikit-learn ML</a></li><li><a href="#">REST APIs</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">© 2025 STCAP · SIMATS Engineering</span><span class="footer-copy">Built with Python & Scikit-learn</span></div>
+</footer>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+/* ── Utilities ── */
+window.addEventListener('scroll',()=>document.querySelector('nav').style.boxShadow=scrollY>30?'0 4px 16px rgba(0,0,0,.08)':'none');
+function showToast(m){var t=document.getElementById('toastEl');t.innerHTML=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function submitForm(e){e.preventDefault();showToast('✅ Message sent! We\'ll reply within 24 hours.');e.target.reset();return false;}
+
+/* ── Charts ── */
+Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+Chart.defaults.color='#9aa3b5';
+new Chart(document.getElementById('heroChart'),{type:'line',data:{labels:['6am','8am','10am','12pm','2pm','4pm','6pm','8pm'],datasets:[{data:[3200,9100,7800,6400,7200,9800,8600,4200],borderColor:'#1d6ef5',backgroundColor:'rgba(29,110,245,.08)',borderWidth:2,fill:true,tension:.4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0f2f6'}}}}});
+new Chart(document.getElementById('lineChart'),{type:'line',data:{labels:['12am','2','4','6','8','10','12pm','2','4','6','8','10'],datasets:[{data:[1800,1400,1100,2600,8200,9600,8400,7800,9400,10100,7200,4100],borderColor:'#1d6ef5',backgroundColor:'rgba(29,110,245,.07)',borderWidth:2.5,fill:true,tension:.4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#f0f2f6'}},y:{grid:{color:'#f0f2f6'}}}}});
+var ci=[62,58,71,65,84,43,37];
+new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:ci,backgroundColor:ci.map(v=>v>75?'#ef4444':v>60?'#f59e0b':'#10b981'),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{max:100,grid:{color:'#f0f2f6'},ticks:{callback:v=>v+'%'}}}}});
+new Chart(document.getElementById('donutChart'),{type:'doughnut',data:{labels:['Cars','Buses','Trucks','2-Wheelers','Others'],datasets:[{data:[54,12,8,22,4],backgroundColor:['#1d6ef5','#10b981','#f59e0b','#7c3aed','#ef4444'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}}}}});
+var roadData=[{n:'NH-44 (North)',p:78,c:'#ef4444'},{n:'Ring Road West',p:45,c:'#f59e0b'},{n:'Anna Salai',p:63,c:'#f59e0b'},{n:'OMR Corridor',p:27,c:'#10b981'},{n:'GST Road',p:88,c:'#ef4444'},{n:'ECR Highway',p:32,c:'#10b981'}];
+var rb=document.getElementById('roadBars');
+roadData.forEach(function(r){rb.innerHTML+='<div class="road-bar-item"><div class="road-bar-header"><span class="road-bar-name">'+r.n+'</span><span class="road-bar-pct" style="color:'+r.c+'">'+r.p+'%</span></div><div class="road-bar-bg"><div class="road-bar-fill" style="width:0%;background:'+r.c+'" data-w="'+r.p+'"></div></div></div>';});
+var rbo=new IntersectionObserver(function(e){if(e[0].isIntersecting){document.querySelectorAll('.road-bar-fill').forEach(function(b){b.style.width=b.dataset.w+'%';});rbo.disconnect();}},{threshold:.2});
+rbo.observe(rb);
+setInterval(function(){document.getElementById('kpiV').textContent=(2400000+Math.floor(Math.random()*60000)).toLocaleString();document.getElementById('kpiT').textContent=(17+Math.random()*3).toFixed(1)+' min';document.getElementById('kpiI').textContent=Math.floor(5+Math.random()*6);},3200);
+
+/* ═══════════════════════
+   TRIP PLANNER
+═══════════════════════ */
+var PLACES=[
+  {id:'cen',name:'Chennai Central Station',area:'Park Town',ic:'🚉',x:340,y:230},
+  {id:'air',name:'Chennai International Airport',area:'Tirusulam',ic:'✈️',x:228,y:448},
+  {id:'egm',name:'Egmore Railway Station',area:'Egmore',ic:'🚉',x:318,y:202},
+  {id:'ann',name:'Anna Nagar',area:'Anna Nagar',ic:'🏘️',x:172,y:148},
+  {id:'tna',name:'T. Nagar Bus Terminus',area:'T. Nagar',ic:'🚌',x:273,y:308},
+  {id:'omr',name:'OMR IT Corridor',area:'Sholinganallur',ic:'🏢',x:540,y:362},
+  {id:'chr',name:'Chromepet',area:'Chromepet',ic:'🏘️',x:190,y:402},
+  {id:'val',name:'Velachery',area:'Velachery',ic:'🏘️',x:392,y:402},
+  {id:'por',name:'Chennai Port',area:'Royapuram',ic:'⚓',x:452,y:158},
+  {id:'gsr',name:'Guindy Metro Station',area:'Guindy',ic:'🚇',x:296,y:366},
+  {id:'kyk',name:'Koyambedu Bus Stand',area:'Koyambedu',ic:'🚌',x:186,y:260},
+  {id:'mkm',name:'Marina Beach',area:'Triplicane',ic:'🏖️',x:452,y:232},
+  {id:'adm',name:'Adyar',area:'Adyar',ic:'🏘️',x:408,y:338},
+  {id:'tvm',name:'Tambaram',area:'Tambaram',ic:'🏘️',x:164,y:475},
+];
+var SEGS=[
+  [340,230,318,202,0],[318,202,172,148,1],[340,230,273,308,1],[273,308,186,260,0],
+  [186,260,172,148,0],[340,230,452,158,0],[452,158,452,232,1],[452,232,540,362,2],
+  [340,230,392,402,1],[392,402,228,448,2],[228,448,164,475,1],[273,308,296,366,3],
+  [296,366,392,402,2],[296,366,228,448,1],[408,338,392,402,0],[408,338,452,232,0],
+  [540,362,600,490,1],[190,402,164,475,0],[190,402,228,448,2],
+];
+var ROUTES={
+  'cen-air':[
+    {name:'Via Mount Rd & GST',via:'Mount Rd → GST Rd',base:28,delay:14,km:22.4,col:'green',steps:['Head south on Anna Salai','Turn right at T. Nagar','Continue on GST Road','Turn right at Guindy','Arrive at Airport Terminal'],path:[[340,230],[273,308],[296,366],[228,448]]},
+    {name:'Via NH-44',via:'NH-44 → Airport Rd',base:32,delay:22,km:24.1,col:'amber',steps:['Head south-west on NH-48','Take NH-44 via Guindy','Heavy congestion near flyover','Turn onto Airport Rd','Arrive at Terminal 1'],path:[[340,230],[273,308],[186,260],[190,402],[228,448]]},
+    {name:'Via ECR & Chromepet',via:'ECR → Chromepet Bypass',base:38,delay:6,km:31.8,col:'blue',steps:['Take NSC Bose Rd towards Marina','Head south via ECR','Turn west at Sholinganallur','Continue to Chromepet','Reach Airport via Old Trunk Rd'],path:[[340,230],[452,232],[540,362],[190,402],[228,448]]},
+  ],
+  'ann-air':[
+    {name:'Via Inner Ring Rd',via:'Inner Ring Rd → GST Rd',base:35,delay:10,km:27.3,col:'green',steps:['Head south on Inner Ring Rd','Continue past Koyambedu','Take GST Rd southbound','Exit at Guindy','Arrive at Airport'],path:[[172,148],[186,260],[273,308],[296,366],[228,448]]},
+    {name:'Via Anna Salai',via:'Anna Salai → Mount Rd',base:40,delay:18,km:29.1,col:'amber',steps:['Head east on Anna Salai','Heavy traffic at T. Nagar','Continue on Mount Rd','Via Guindy','Arrive at Airport'],path:[[172,148],[340,230],[273,308],[296,366],[228,448]]},
+  ],
+  'cen-omr':[
+    {name:'Via East Coast Rd',via:'NSC Bose Rd → ECR',base:40,delay:20,km:34.2,col:'amber',steps:['Head north-east towards Port','Take NSC Bose Rd','Turn onto East Coast Rd','Heavy traffic near IT Corridor','Arrive at OMR'],path:[[340,230],[452,158],[452,232],[540,362]]},
+    {name:'Via Velachery Bypass',via:'GST Rd → Velachery',base:48,delay:8,km:38.7,col:'green',steps:['Head south on Mount Rd','Take GST Rd via Guindy','Turn east at Velachery','Take OMR flyover','Arrive at IT Corridor'],path:[[340,230],[273,308],[296,366],[392,402],[540,362]]},
+  ],
+  'egm-val':[
+    {name:'Via Mount Rd Direct',via:'Mount Rd → LB Rd',base:22,delay:12,km:14.6,col:'green',steps:['Head south on Anna Salai','Continue on Mount Rd','Take LB Rd via Adyar','Turn onto 100 Feet Rd','Arrive at Velachery'],path:[[318,202],[340,230],[408,338],[392,402]]},
+    {name:'Via Guindy Metro',via:'Metro → Guindy → Velachery',base:30,delay:5,km:16.2,col:'blue',steps:['Board metro at Egmore','Change at Central','Metro to Guindy','Take feeder bus','Arrive Velachery'],path:[[318,202],[340,230],[296,366],[392,402]]},
+  ],
+  'kyk-air':[
+    {name:'Via GST Road',via:'Koyambedu → GST Rd',base:30,delay:15,km:21.2,col:'green',steps:['Head south from Koyambedu','Take NH-48 bypass','Join GST Rd at Guindy','Follow Airport signs','Arrive at Terminal 1'],path:[[186,260],[273,308],[296,366],[228,448]]},
+    {name:'Via Chromepet',via:'Mount Poonamallee → Chromepet',base:36,delay:7,km:23.8,col:'blue',steps:['Head south on Mount Poonamallee','Continue to Pammal','Turn east at Chromepet','Take Old Trunk Rd','Arrive at Airport'],path:[[186,260],[190,402],[228,448]]},
+  ],
+};
+
+var SVG_NS='http://www.w3.org/2000/svg';
+var mapSvg=null,trafficOn=true,nightMode=false,drawnEls=[],activeMode='drive',currentRoutes=[];
+var CONG=['#22c55e','#eab308','#ef4444','#7f1d1d'];
+
+function svgEl(tag,attrs){
+  var e=document.createElementNS(SVG_NS,tag);
+  Object.keys(attrs).forEach(function(k){e.setAttribute(k,attrs[k]);});
+  mapSvg.appendChild(e);
+  return e;
+}
+function svgText(x,y,text,size,color,weight){
+  var e=document.createElementNS(SVG_NS,'text');
+  e.setAttribute('x',x);e.setAttribute('y',y);
+  e.setAttribute('text-anchor','middle');
+  e.setAttribute('font-size',size||'9');
+  e.setAttribute('font-family','Plus Jakarta Sans,sans-serif');
+  e.setAttribute('font-weight',weight||'600');
+  e.setAttribute('fill',color||'#6b7490');
+  e.textContent=text;
+  mapSvg.appendChild(e);
+  return e;
+}
+
+function drawMap(){
+  mapSvg.innerHTML='';
+  var bg=nightMode?'#0f172a':'#e4ecf6';
+  var roadBase=nightMode?'#374151':'#cdd5e0';
+  var lbl=nightMode?'#64748b':'#6b7490';
+  svgEl('rect',{x:0,y:0,width:680,height:640,fill:bg});
+  // Water
+  svgEl('path',{d:'M628,0 L680,0 L680,640 L658,640 L638,420 L648,270 L628,0',fill:nightMode?'#0c1f3a':'#b8d4ec',opacity:'0.65'});
+  // Green areas
+  [[68,50,65,46],[468,70,56,40],[152,496,75,46],[538,240,50,34]].forEach(function(a){
+    svgEl('rect',{x:a[0],y:a[1],width:a[2],height:a[3],rx:7,fill:nightMode?'#1a2e1a':'#d4edda',opacity:'0.55'});
+  });
+  // Roads
+  SEGS.forEach(function(s){
+    svgEl('line',{x1:s[0],y1:s[1],x2:s[2],y2:s[3],stroke:roadBase,'stroke-width':11,'stroke-linecap':'round'});
+    svgEl('line',{x1:s[0],y1:s[1],x2:s[2],y2:s[3],stroke:trafficOn?CONG[s[4]]:(nightMode?'#4a5568':'#b8c4d8'),'stroke-width':5,'stroke-linecap':'round',opacity:trafficOn?'0.88':'1'});
+  });
+  // Buildings
+  [[260,188,46,34],[305,162,50,29],[364,196,44,32],[380,260,48,34],[284,268,44,29],[482,264,41,27]].forEach(function(a){
+    svgEl('rect',{x:a[0],y:a[1],width:a[2],height:a[3],rx:3,fill:nightMode?'#2a3a52':'#dde5f0',stroke:nightMode?'#3a4a62':'#c8d5e8','stroke-width':1,opacity:'0.7'});
+  });
+  // Place markers
+  PLACES.forEach(function(p){
+    svgEl('circle',{cx:p.x,cy:p.y,r:9,fill:'#fff',stroke:nightMode?'#475569':'#c8d5e8','stroke-width':1.5});
+    svgText(p.x,p.y+3.5,p.ic,'9','#555','normal');
+    svgText(p.x,p.y+20,p.name.split(' ').slice(0,2).join(' '),'8',lbl,'600');
+  });
+  svgText(340,630,'CHENNAI CITY — DEMO MAP','10',lbl,'600');
+  svgEl('text',{x:340,y:630}).style&&(svgEl('text',{x:340,y:630}).style.opacity='0.4');
+}
+
+function drawRoute(path,color,animate){
+  var pts=path.map(function(p){return p[0]+','+p[1];}).join(' ');
+  var glow=svgEl('polyline',{points:pts,fill:'none',stroke:color,'stroke-width':12,'stroke-linecap':'round','stroke-linejoin':'round',opacity:'0.18'});
+  var line=svgEl('polyline',{points:pts,fill:'none',stroke:color,'stroke-width':5.5,'stroke-linecap':'round','stroke-linejoin':'round',opacity:'0.9'});
+  if(animate){
+    var len=0;
+    for(var i=1;i<path.length;i++){var dx=path[i][0]-path[i-1][0],dy=path[i][1]-path[i-1][1];len+=Math.sqrt(dx*dx+dy*dy);}
+    line.setAttribute('stroke-dasharray',len);
+    line.setAttribute('stroke-dashoffset',len);
+    line.style.animation='drawLine 1.2s ease forwards';
+  }
+  drawnEls.push(glow,line);
+  var sx=path[0][0],sy=path[0][1],ex=path[path.length-1][0],ey=path[path.length-1][1];
+  var sm=svgEl('circle',{cx:sx,cy:sy,r:8,fill:color,stroke:'#fff','stroke-width':2.5});
+  var em=svgEl('circle',{cx:ex,cy:ey,r:8,fill:color,stroke:'#fff','stroke-width':2.5});
+  var pulse=svgEl('circle',{cx:sx,cy:sy,r:8,fill:'none',stroke:color,'stroke-width':2,opacity:'0.5'});
+  pulse.innerHTML='<animate attributeName="r" values="8;22" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0" dur="1.5s" repeatCount="indefinite"/>';
+  drawnEls.push(sm,em,pulse);
+  // Moving dot
+  var pid='rt'+Date.now();
+  var pathEl=svgEl('path',{d:'M'+path.map(function(p){return p[0]+','+p[1];}).join(' L'),fill:'none',stroke:'none',id:pid});
+  var dot=svgEl('circle',{r:6,fill:'#fff',stroke:color,'stroke-width':2.5});
+  var am=document.createElementNS(SVG_NS,'animateMotion');
+  am.setAttribute('dur','4s');am.setAttribute('repeatCount','indefinite');am.setAttribute('calcMode','linear');
+  var mp=document.createElementNS(SVG_NS,'mpath');
+  mp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+pid);
+  am.appendChild(mp);dot.appendChild(am);mapSvg.appendChild(dot);
+  drawnEls.push(dot,pathEl);
+}
+
+var animStyle=document.createElement('style');
+animStyle.textContent='@keyframes drawLine{to{stroke-dashoffset:0;}}';
+document.head.appendChild(animStyle);
+
+function clearRoutes(){drawnEls.forEach(function(e){try{mapSvg.removeChild(e);}catch(x){}});drawnEls=[];}
+
+/* Autocomplete */
+function showAC(field,val){
+  var id=field==='o'?'acOrigin':'acDest',el=document.getElementById(id);
+  if(!val){el.classList.remove('show');return;}
+  var matches=PLACES.filter(function(p){return p.name.toLowerCase().includes(val.toLowerCase())||p.area.toLowerCase().includes(val.toLowerCase());}).slice(0,6);
+  if(!matches.length){el.classList.remove('show');return;}
+  el.innerHTML=matches.map(function(p){
+    return '<div class="ac-item" onmousedown="pickPlace(\''+field+'\',\''+p.name+'\')"><span>'+p.ic+'</span><div><div class="ac-name">'+p.name+'</div><div class="ac-sub">'+p.area+'</div></div></div>';
+  }).join('');
+  el.classList.add('show');
+}
+function hideAC(field){setTimeout(function(){document.getElementById(field==='o'?'acOrigin':'acDest').classList.remove('show');},200);}
+function pickPlace(field,name){
+  document.getElementById(field==='o'?'originInput':'destInput').value=name;
+  hideAC(field);
+}
+function swapPlaces(){
+  var o=document.getElementById('originInput'),d=document.getElementById('destInput');
+  var t=o.value;o.value=d.value;d.value=t;
+}
+function setMode(el){
+  activeMode=el.dataset.m;
+  document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+}
+
+/* Search routes */
+function searchRoutes(){
+  var ov=document.getElementById('originInput').value.trim();
+  var dv=document.getElementById('destInput').value.trim();
+  if(!ov||!dv){showToast('⚠️ Please enter both start and destination');return;}
+  var btn=document.getElementById('searchBtn');
+  btn.classList.add('loading');
+  document.getElementById('emptyState').style.display='none';
+  setTimeout(function(){
+    btn.classList.remove('loading');
+    var res=matchRoutes(ov,dv);
+    renderRoutes(res.routes,res.from,res.to);
+  },900);
+}
+
+function matchRoutes(ov,dv){
+  var oP=PLACES.find(function(p){return p.name.toLowerCase().includes(ov.toLowerCase().split(' ')[0]);});
+  var dP=PLACES.find(function(p){return p.name.toLowerCase().includes(dv.toLowerCase().split(' ')[0]);});
+  if(oP&&dP){
+    var k=oP.id+'-'+dP.id,rk=dP.id+'-'+oP.id;
+    if(ROUTES[k])return{routes:ROUTES[k],from:oP.name,to:dP.name};
+    if(ROUTES[rk]){var rev=ROUTES[rk].map(function(r){return Object.assign({},r,{path:r.path.slice().reverse()});});return{routes:rev,from:oP.name,to:dP.name};}
+  }
+  var keys=Object.keys(ROUTES),k2=keys[Math.floor(Math.random()*keys.length)],parts=k2.split('-');
+  return{routes:ROUTES[k2],from:PLACES.find(function(p){return p.id===parts[0];})||{name:ov},to:PLACES.find(function(p){return p.id===parts[1];})||{name:dv}};
+}
+
+var RCOLS=['#10b981','#1d6ef5','#f59e0b','#ef4444'];
+function renderRoutes(routes,from,to){
+  clearRoutes();drawMap();currentRoutes=routes;
+  var mM={drive:1,transit:1.3,bike:2.2,walk:5.5}[activeMode]||1;
+  var minD=Math.min.apply(null,routes.map(function(r){return r.delay;}));
+  var bn=document.getElementById('trafficBanner');
+  if(minD<=8){bn.className='traffic-banner free visible';bn.innerHTML='🟢 <strong>Light traffic</strong> — Great time to travel!';}
+  else if(minD<=18){bn.className='traffic-banner moderate visible';bn.innerHTML='🟡 <strong>Moderate traffic</strong> — ~'+minD+' min delay on fastest route';}
+  else{bn.className='traffic-banner heavy visible';bn.innerHTML='🔴 <strong>Heavy traffic</strong> — '+minD+' min delay, use alternative routes';}
+
+  // Draw routes on map
+  routes.forEach(function(r,i){
+    if(i===0){drawRoute(r.path,RCOLS[i],true);}
+    else{
+      var pts=r.path.map(function(p){return p[0]+','+p[1];}).join(' ');
+      var ln=svgEl('polyline',{points:pts,fill:'none',stroke:'#94a3b8','stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round',opacity:'0.4','stroke-dasharray':'8 6'});
+      drawnEls.push(ln);
+    }
+  });
+
+  // Render cards
+  var wrap=document.getElementById('routeCards');
+  wrap.innerHTML='';
+  var badges=[['⭐ Best','badge-best'],['⚡ Faster','badge-fast'],['🔀 Alt','badge-alt']];
+  routes.forEach(function(r,i){
+    var mins=Math.round((r.base+r.delay)*mM);
+    var delay=Math.round(r.delay*mM);
+    var arr=new Date(Date.now()+mins*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var tClass=delay<=6?'traffic-free':delay<=15?'traffic-mod':'traffic-heavy';
+    var tLabel=delay<=6?'🟢 Free Flow':delay<=15?'🟡 Moderate':'🔴 Heavy';
+    var cp=delay<=6?12:delay<=15?42:68;
+    var bd=badges[i]||['Alt','badge-alt'];
+    var stepsHtml=r.steps.map(function(s){return '<div class="step-item"><div class="step-dot">›</div><div>'+s+'</div></div>';}).join('');
+    var card=document.createElement('div');
+    card.className='route-card color-'+r.col+(i===0?' selected':'');
+    card.dataset.idx=i;
+    card.innerHTML='<div class="rc-header"><div class="rc-name">'+r.name+'</div><span class="rc-badge '+bd[1]+'">'+bd[0]+'</span></div>'+
+      '<div class="rc-meta"><div><div class="rc-eta">'+mins+' min</div><div class="rc-delay" style="color:'+(delay<=6?'#059669':'#f59e0b')+'">'+(delay<=6?'No delays':'+'+delay+' min delay')+'</div></div><div class="rc-sep"></div><div class="rc-dist">'+((r.km*mM).toFixed(1))+' km</div><div class="rc-sep"></div><span class="rc-traffic '+tClass+'">'+tLabel+'</span></div>'+
+      '<div class="rc-arrive">🕐 Arrive <strong>'+arr+'</strong> &nbsp;·&nbsp; Via <strong>'+r.via+'</strong></div>'+
+      '<div class="cong-bar"><div class="cong-bar-label">Congestion along route</div><div class="cong-track"><div class="cong-pointer" style="left:'+cp+'%"></div></div></div>'+
+      '<div class="steps-toggle" onclick="toggleSteps(this)">▾ Show directions</div>'+
+      '<div class="steps-body">'+stepsHtml+'</div>';
+    card.addEventListener('click',function(e){if(e.target.classList.contains('steps-toggle'))return;selectRoute(i,card,routes);});
+    wrap.appendChild(card);
+  });
+
+  buildCompTable(routes,mM);
+  updateETA(routes[0],mM);
+  document.getElementById('routesArea').classList.add('visible');
+  document.getElementById('compArea').classList.add('visible');
+  showToast('✅ '+routes.length+' routes found · '+from.split(' ').slice(0,2).join(' '));
+}
+
+function selectRoute(idx,card,routes){
+  document.querySelectorAll('.route-card').forEach(function(c){c.classList.remove('selected');});
+  card.classList.add('selected');
+  clearRoutes();drawMap();
+  var mM={drive:1,transit:1.3,bike:2.2,walk:5.5}[activeMode]||1;
+  routes.forEach(function(r,i){
+    if(i===idx){drawRoute(r.path,RCOLS[idx],true);}
+    else{
+      var pts=r.path.map(function(p){return p[0]+','+p[1];}).join(' ');
+      var ln=svgEl('polyline',{points:pts,fill:'none',stroke:'#94a3b8','stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round',opacity:'0.3','stroke-dasharray':'8 6'});
+      drawnEls.push(ln);
+    }
+  });
+  updateETA(routes[idx],mM);
+  showToast('📍 Route '+(idx+1)+' selected');
+}
+
+function updateETA(route,mM){
+  mM=mM||1;
+  var mins=Math.round((route.base+route.delay)*mM);
+  var km=(route.km*mM).toFixed(1);
+  var arr=new Date(Date.now()+mins*60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('etaTime').textContent=mins+' min';
+  document.getElementById('etaDist').textContent=km+' km · '+route.via;
+  document.getElementById('etaArrive').textContent='🕐 Arrive at '+arr;
+  document.getElementById('etaBox').classList.add('show');
+}
+
+function buildCompTable(routes,mM){
+  var html='<thead><tr><th>Route</th><th>ETA</th><th>Dist</th><th>Delay</th><th>Traffic</th></tr></thead><tbody>';
+  routes.forEach(function(r,i){
+    var m=Math.round((r.base+r.delay)*mM),d=Math.round(r.delay*mM);
+    var tr=d<=6?'🟢 Free':d<=15?'🟡 Moderate':'🔴 Heavy';
+    html+='<tr'+(i===0?' class="winner"':'')+'><td><strong>'+(i===0?'⭐ ':'')+'Route '+(i+1)+'</strong></td><td><strong>'+m+' min</strong></td><td>'+(r.km*mM).toFixed(1)+' km</td><td>'+(d<=2?'None':'+'+d+' min')+'</td><td>'+tr+'</td></tr>';
+  });
+  document.getElementById('compTable').innerHTML=html+'</tbody>';
+}
+
+function toggleSteps(el){
+  var b=el.nextElementSibling;var open=b.classList.toggle('open');
+  el.textContent=(open?'▴ Hide ':'▾ Show ')+'directions';
+}
+
+/* Map controls */
+function toggleTraffic(){trafficOn=!trafficOn;document.getElementById('trafBtn').style.opacity=trafficOn?'1':'0.4';drawMap();clearRoutes();showToast(trafficOn?'🚦 Traffic layer ON':'Traffic layer OFF');}
+function resetMap(){drawMap();clearRoutes();}
+function toggleNight(){nightMode=!nightMode;document.getElementById('nightBtn').textContent=nightMode?'☀️':'🌙';drawMap();clearRoutes();showToast(nightMode?'🌙 Night mode':'☀️ Day mode');}
+
+/* Clock */
+function updateClock(){var e=document.getElementById('plClock');if(e)e.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+setInterval(updateClock,1000);updateClock();
+
+/* Live traffic updates */
+setInterval(function(){
+  var i=Math.floor(Math.random()*SEGS.length);
+  SEGS[i][4]=Math.max(0,Math.min(3,SEGS[i][4]+(Math.random()<.5?1:-1)));
+  drawMap();
+},20000);
+
+/* Init map */
+window.addEventListener('load',function(){
+  mapSvg=document.getElementById('map-svg');
+  drawMap();
+});
+</script>
+</body>
+</html>
